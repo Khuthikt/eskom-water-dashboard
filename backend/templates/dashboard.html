@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ESWAP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2 class="logo">
+            <img src="{{ url_for('static', filename='Images/E Logo.png') }}" alt="E Logo" class="logo-img">
+            ESWAP
+        </h2>
+        <nav>
+            <ul>
+                <li class="active" onclick="showSection('overview')">📊 Overview</li>
+                <li onclick="showSection('water')">💧 Water Consumption</li>
+                <li onclick="showSection('cooling')">🌡 Cooling Systems</li>
+                <li onclick="showSection('leak')">⚠ Leak Detection</li>
+                <li onclick="showSection('maintenance')">🔧 Maintenance</li>
+                <li onclick="showSection('predictive')">📈 Predictive Analytics</li>
+                <li onclick="showSection('reports')">📂 Reports</li>
+                <li onclick="showSection('admin')">⚙ Admin</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div>
+                <h1>Control Room Dashboard</h1>
+                <p>Station: Initium Power Station</p>
+            </div>
+            <div class="topbar-right">
+                <div class="weather clickable" onclick="showSection('predictive')">🌤 --°C</div>
+                <div class="alert clickable" onclick="showSection('leak')">🔴 Critical Alerts</div>
+                <div class="user clickable" onclick="showSection('admin')">👤 Admin</div>
+            </div>
+        </header>
+
+        <!-- Sections -->
+        <!-- Overview -->
+        <section id="overview" class="dashboard-section active">
+            <div class="kpi-section">
+                <div class="card green"><h3>Water Usage (Today)</h3><p>12.4 ML</p></div>
+                <div class="card yellow"><h3>% Above Normal</h3><p>+18%</p></div>
+                <div class="card red"><h3>Active Leaks</h3><p>2 Detected</p></div>
+                <div class="card green"><h3>Maintenance Due</h3><p>5 Tasks</p></div>
+            </div>
+
+            <div class="charts">
+                <div class="chart-box">
+                    <h3>Water Usage vs Temperature</h3>
+                    <canvas id="waterTempChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Cooling Tower Consumption</h3>
+                    <canvas id="coolingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Alerts Table -->
+            <div class="alerts-section">
+                <h3>Recent Alerts</h3>
+                <table>
+                    <thead>
+                        <tr><th>Time</th><th>Equipment</th><th>Issue</th><th>Severity</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>09:14</td><td>Pump-03</td><td>Abnormal Flow Rate</td><td><span class="badge yellow">Warning</span></td><td><button class="btn-primary">Create Request</button></td></tr>
+                        <tr><td>08:52</td><td>Cooling Tower 2</td><td>Leak Detected</td><td><span class="badge red">Critical</span></td><td><button class="btn-danger">Immediate Action</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Water Consumption -->
+        <section id="water" class="dashboard-section">
+            <h2>Water Consumption</h2>
+            <canvas id="waterUsageChart"></canvas>
+        </section>
+
+        <!-- Cooling Systems -->
+        <section id="cooling" class="dashboard-section">
+            <h2>Cooling Systems</h2>
+            <canvas id="coolingSystemChart"></canvas>
+        </section>
+
+        <!-- Leak Detection -->
+        <section id="leak" class="dashboard-section">
+            <h2>Leak Detection</h2>
+            <canvas id="leakChart"></canvas>
+        </section>
+
+        <!-- Maintenance -->
+        <section id="maintenance" class="dashboard-section">
+            <h2>Pending Maintenance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tower</th>
+                        <th>Task</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingMaintenanceTable"></tbody>
+            </table>
+        </section>
+
+        <!-- Predictive Analytics -->
+        <section id="predictive" class="dashboard-section">
+            <h2>Predictive Analytics</h2>
+
+            <div class="kpi-section">
+                <div class="card green" id="predictedWaterUsage"><h3>Predicted Water Usage</h3><p>-- ML</p></div>
+                <div class="card yellow" id="predictedLoadshedding"><h3>Load Shedding</h3><p>--</p></div>
+                <div class="card red" id="predictedLeaks"><h3>Potential Leaks</h3><p>--</p></div>
+            </div>
+
+            <canvas id="predictiveChart"></canvas>
+        </section>
+
+        <!-- Reports -->
+        <section id="reports" class="dashboard-section">
+            <h2>Reports</h2>
+
+            <!-- Reports Chart -->
+            <canvas id="reportsChart"></canvas>
+
+            <!-- Active Alerts Table -->
+            <h3>Active Alerts</h3>
+            <table>
+                <thead>
+                    <tr><th>Level</th><th>Tower</th><th>Description</th><th>Action</th><th>Est. Loss</th></tr>
+                </thead>
+                <tbody id="alertsTable"></tbody>
+            </table>
+
+            <!-- Technicians Table -->
+            <h3>Technician Assignments</h3>
+            <table>
+                <thead>
+                    <tr><th>Name</th><th>Tasks</th><th>Status</th></tr>
+                </thead>
+                <tbody id="techniciansTable"></tbody>
+            </table>
+
+            <!-- System Status Table -->
+            <h3>System Status</h3>
+            <table>
+                <thead>
+                    <tr><th>Component</th><th>Status</th><th>Notes</th></tr>
+                </thead>
+                <tbody id="systemStatusTable"></tbody>
+            </table>
+
+        </section>
+
+        <!-- Admin -->
+        <section id="admin" class="dashboard-section">
+            <h2>Admin Panel</h2>
+            <ul>
+                <li>Active Workers: 12</li>
+                <li>Repair Budget: R 1.2M</li>
+                <li>System Health: Stable</li>
+            </ul>
+        </section>
+
+    </main>
+</div>
+
+<script>
+// Section navigation
+function showSection(sectionId) {
+    document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+    document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+    document.querySelector(`.sidebar li[onclick="showSection('${sectionId}')"]`)?.classList.add('active');
+}
+
+// Fetch helper
+async function fetchData(url){ const res = await fetch(url); return await res.json(); }
+
+// Fetch weather from Open-Meteo API
+async function fetchWeatherAPI() {
+    try {
+        const res = await fetch("/api/weather"); // your backend endpoint
+        const data = await res.json();
+        if(data.length > 0){
+            return data[data.length-1].temperature; // get latest temperature
+        }
+        return null;
+    } catch(e){
+        console.error("Weather fetch error:", e);
+        return null;
+    }
+}
+
+async function renderCharts(){
+    const weather = await fetchData("/api/weather");
+    const water = await fetchData("/api/water");
+    const cooling = await fetchData("/api/cooling");
+    const leaks = await fetchData("/api/leaks");
+    const predictive = await fetchData("/api/predictive");
+    const reports = await fetchData("/api/reports");
+    const currentTemp = await fetchWeatherAPI(); // 🔹 Get current temperature
+
+    // 🔹 Update topbar weather
+    const weatherDiv = document.querySelector('.weather');
+    if (currentTemp !== null) {
+        weatherDiv.textContent = `🌤 ${currentTemp.toFixed(1)}°C`;
+    } else {
+        weatherDiv.textContent = "🌤 Weather unavailable";
+    }
+
+    // Overview Charts
+    new Chart(document.getElementById("waterTempChart"), {
+        type:"line",
+        data:{
+            labels: weather.map(d=>d.date),
+            datasets:[
+                {label:"Temperature (°C)", data: weather.map(d=>d.temperature), borderColor:"red", fill:false},
+                {label:"Water Usage (ML)", data: water.map(d=>d.usage), borderColor:"blue", fill:false}
+            ]
+        },
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+
+    new Chart(document.getElementById("coolingChart"), {
+        type:"bar",
+        data:{labels: cooling.map(d=>d.tower), datasets:[{label:"Consumption (ML)", data: cooling.map(d=>d.temperature), backgroundColor:"green"}]},
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+
+    new Chart(document.getElementById("waterUsageChart"), {
+        type:"bar",
+        data:{labels:water.map(d=>d.tower), datasets:[{label:"Water Usage (ML)", data:water.map(d=>d.usage), backgroundColor:"blue"}]},
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+
+    new Chart(document.getElementById("coolingSystemChart"), {
+        type:"bar",
+        data:{labels:cooling.map(d=>d.tower), datasets:[
+            {label:"Temperature (°C)", data:cooling.map(d=>d.temperature), backgroundColor:"orange"},
+            {label:"Water Level (%)", data:cooling.map(d=>d.water_level), backgroundColor:"blue"}
+        ]},
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+
+    new Chart(document.getElementById("leakChart"), {
+        type:"bar",
+        data:{labels:leaks.map(d=>d.tower), datasets:[
+            {label:"Leaks Count", data:leaks.map(d=>d.leaks), backgroundColor:"red"},
+            {label:"Water Lost (ML)", data:leaks.map(d=>d.water_lost), backgroundColor:"blue"},
+            {label:"Pressure", data:leaks.map(d=>d.pressure), backgroundColor:"orange"}
+        ]},
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+
+    // Predictive KPIs
+    document.getElementById("predictedWaterUsage").querySelector("p").textContent =
+        predictive[predictive.length-1].predicted_usage + " ML";
+    document.getElementById("predictedLoadshedding").querySelector("p").textContent =
+        predictive[predictive.length-1].load_shedding;
+    let potentialLeaks = leaks.filter(l=>l.pressure < 90).length;
+    document.getElementById("predictedLeaks").querySelector("p").textContent = potentialLeaks + " Tower(s)";
+
+    // Predictive Chart (add current temperature)
+    new Chart(document.getElementById("predictiveChart"), {
+        type:"line",
+        data:{
+            labels: predictive.map(d=>d.date),
+            datasets:[
+                {label:"Predicted Water Usage (ML)", data: predictive.map(d=>d.predicted_usage), borderColor:"blue", fill:false},
+                {label:"Rain (mm)", data: predictive.map(d=>d.rain), borderColor:"green", fill:false},
+                {label:"Temperature (°C)", data: predictive.map((d,i)=>weather[i]?.temperature || currentTemp), borderColor:"red", fill:false}
+            ]
+        },
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+
+    new Chart(document.getElementById("reportsChart"), {
+        type:"bar",
+        data:{labels:reports.map(d=>d.month), datasets:[{label:"Report Count", data:reports.map(d=>d.count), backgroundColor:"teal"}]},
+        options:{plugins:{legend:{labels:{color:"black"}}}, scales:{x:{ticks:{color:"black"}},y:{ticks:{color:"black"}}}}
+    });
+}
+
+// Render Pending Maintenance
+async function renderPendingMaintenance(){
+    const pending = await fetchData("/api/pending_maintenance");
+    const tbody = document.getElementById("pendingMaintenanceTable");
+    tbody.innerHTML = "";
+    pending.forEach(p => {
+        tbody.innerHTML += `<tr>
+            <td>${p.tower}</td>
+            <td>${p.task}</td>
+            <td>${p.status}</td>
+            <td>${p.assigned}</td>
+        </tr>`;
+    });
+}
+
+// Render Active Alerts, Technicians, System Status in Reports
+async function renderReportsTables(){
+    const alerts = await fetchData("/api/alerts");
+    const technicians = await fetchData("/api/technicians");
+    const systemStatus = await fetchData("/api/system_status");
+
+    const alertsTbody = document.getElementById("alertsTable");
+    alertsTbody.innerHTML = "";
+    alerts.forEach(a => {
+        alertsTbody.innerHTML += `<tr>
+            <td>${a.level}</td><td>${a.tower}</td><td>${a.description}</td><td>${a.action}</td><td>${a.estimated_loss}</td>
+        </tr>`;
+    });
+
+    const techTbody = document.getElementById("techniciansTable");
+    techTbody.innerHTML = "";
+    technicians.forEach(t => {
+        techTbody.innerHTML += `<tr>
+            <td>${t.name}</td><td>${t.tasks}</td><td>${t.status}</td>
+        </tr>`;
+    });
+
+    const systemTbody = document.getElementById("systemStatusTable");
+    systemTbody.innerHTML = "";
+    systemStatus.forEach(s => {
+        systemTbody.innerHTML += `<tr>
+            <td>${s.component}</td><td>${s.status}</td><td>${s.notes}</td>
+        </tr>`;
+    });
+}
+
+window.onload = () => {
+    renderCharts();
+    renderPendingMaintenance();
+    renderReportsTables();
+};
+</script>
+
+</body>
+</html>

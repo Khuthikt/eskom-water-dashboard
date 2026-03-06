@@ -1,0 +1,125 @@
+1️⃣ Project Overview
+
+Your project is essentially a Control Room Dashboard for a power station (Initium Power Station). It monitors several aspects of operations:
+
+Weather data
+
+Water consumption in cooling towers
+
+Cooling system status (temperature and water levels)
+
+Leak detection in the water system
+
+Maintenance tasks
+
+Predictive analytics (future water usage, load shedding, potential leaks)
+
+Reports, alerts, and system status
+
+The goal is to display all critical information in a single dashboard, so operators can monitor, analyze, and respond in real-time or near real-time.
+
+
+2️⃣ Architecture of the Project
+The project has three main layers:
+
+A. Backend (Flask + SQLite)
+Flask: A lightweight Python web framework that serves data and HTML pages.
+SQLite: A simple file-based database that stores historical data and simulated data for the dashboard.
+
+The backend does two main things:
+Serve the dashboard webpage (dashboard.html):
+@app.route("/")
+def dashboard():
+    return render_template("dashboard.html")
+When you open http://127.0.0.1:5000/, Flask renders the HTML page.
+
+Provide API endpoints:
+@app.route("/api/weather")
+def get_weather():
+    return jsonify(query_db("SELECT * FROM weather ORDER BY date ASC"))
+
+Each part of the dashboard fetches data via these endpoints using JavaScript fetch().
+Example endpoints: /api/water, /api/cooling, /api/leaks, /api/predictive, /api/reports, /api/alerts, etc.
+These endpoints return JSON, which JavaScript uses to render charts and tables.
+
+
+B. Database (SQLite)
+The database stores simulated or historical data for:
+
+Weather (temperature, humidity)
+Water usage per tower
+Cooling tower metrics (temperature, water_level)
+Leak detection (leaks, water_lost, pressure)
+Predictive analytics (predicted_usage, rain, load_shedding)
+Reports, alerts, maintenance, technicians, and system status
+
+Why SQLite?
+Lightweight and easy to set up (file-based, no server required).
+Perfect for a desktop or small-scale monitoring dashboard.
+Data can be populated via simulation (database.py) for testing.
+
+Data simulation logic (data_simulation.py):
+Generates random but realistic values for each table.
+Example: cooling tower temperatures fluctuate between 25–40°C.
+Predictive analytics simulate future usage, rain, and load shedding.
+This allows your dashboard to function even without real sensors
+
+C. Frontend (HTML + CSS + JavaScript)
+
+The frontend does three things:
+Layout and styling (dashboard.html + style.css):
+Sidebar for navigation
+Topbar with weather, alerts, admin
+Sections: Overview, Water, Cooling, Leak, Maintenance, Predictive, Reports, Admin
+KPI cards, charts, and tables
+
+Fetch data from Flask APIs:
+async function fetchData(url){ 
+    const res = await fetch(url); 
+    return await res.json(); 
+}
+This allows the dashboard to dynamically update without refreshing the page.
+
+Render charts (using Chart.js):
+Line charts: Water Usage vs Temperature, Predictive Analytics
+Bar charts: Cooling tower consumption, leak detection, reports
+Uses JSON from backend endpoints to fill chart data.
+
+Logic Example (Predictive Analytics Chart):
+Fetch predictive data (/api/predictive)
+Plot Predicted Water Usage and Rain on a line chart
+Optionally, you added live weather temperature to the same chart for comparison
+
+3️⃣ Flow of Data
+
+Data Simulation (database.py) → Populates SQLite tables with simulated values.
+Flask Backend → Serves /api/* endpoints returning JSON.
+Frontend JavaScript → Fetches JSON, renders charts and tables dynamically.
+User Interaction → Clicking sidebar links shows different sections (showSection() in JS).
+
+
+4️⃣ Enhancing the Project
+We added:
+Live Weather API (Open-Meteo): Fetches real temperature for the dashboard and predictive chart.
+
+KPI calculations:
+Potential leaks are calculated based on pressure < 90
+Load shedding and predicted water usage are shown dynamically
+Fallbacks: If API fails, your dashboard uses database values (so it never breaks)
+
+5️⃣ Why it Works Together
+The backend serves data → the frontend visualizes it → the user interacts via dashboard.
+Using API endpoints decouples data storage from display, which is good design:
+Later, if you replace SQLite with a real-time sensor network, you only need to change the API.
+Chart.js handles visualization dynamically.
+CSS + Flex/Grid layout keeps the dashboard responsive and professional.
+
+6️⃣ Summary of Logic
+Simulate / store data (database.py + data_simulation.py)
+Serve dashboard and API (app.py + Flask)
+Fetch data dynamically (JavaScript fetch)
+Render charts & tables (Chart.js + HTML DOM manipulation)
+Enhance with real-time APIs (Open-Meteo for weather)
+User navigates sections (showSection function in JS)
+
+Essentially, the project is a data flow pipeline: Simulated data → Backend API → Frontend Charts → User Dashboard. Adding APIs just extends this pipeline.
